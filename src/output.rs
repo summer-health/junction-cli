@@ -11,4 +11,3 @@ pub fn print_json(value: &Value) {
 pub fn print_success(msg: &str) {
     println!("{} {msg}", "✓".green());
 }
-
