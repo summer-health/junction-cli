@@ -2,6 +2,7 @@ mod client;
 mod commands;
 mod config;
 mod output;
+pub mod validate;
 
 use anyhow::Result;
 use clap::Parser;

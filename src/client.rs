@@ -95,4 +95,36 @@ impl JunctionClient {
     pub async fn get_raw(&self, path: &str) -> Result<serde_json::Value> {
         self.get_json(path).await
     }
+
+    pub async fn get_bytes(&self, path: &str) -> Result<Vec<u8>> {
+        let resp = self.get(path).await?;
+        let status = resp.status();
+        if !status.is_success() {
+            let body = resp.text().await.unwrap_or_default();
+            anyhow::bail!("API error ({}): {}", status, body);
+        }
+        Ok(resp.bytes().await?.to_vec())
+    }
+
+    pub async fn patch_json<T: DeserializeOwned>(
+        &self,
+        path: &str,
+        body: &impl serde::Serialize,
+    ) -> Result<T> {
+        let url = format!("{}{}", self.base_url, path);
+        let resp = self
+            .http
+            .patch(&url)
+            .header("x-vital-api-key", &self.api_key)
+            .json(body)
+            .send()
+            .await
+            .with_context(|| format!("request to {} failed", url))?;
+        let status = resp.status();
+        if !status.is_success() {
+            let body = resp.text().await.unwrap_or_default();
+            anyhow::bail!("API error ({}): {}", status, body);
+        }
+        resp.json::<T>().await.context("failed to parse response")
+    }
 }

@@ -4,6 +4,7 @@ use clap::Subcommand;
 use crate::client::JunctionClient;
 use crate::config::Config;
 use crate::output;
+use crate::validate;
 
 #[derive(Subcommand)]
 pub enum SummaryCommand {
@@ -88,6 +89,51 @@ pub enum SummaryCommand {
         user_id: String,
     },
 
+    /// Get electrocardiogram data
+    Electrocardiogram {
+        /// User ID
+        user_id: String,
+        /// Start date (YYYY-MM-DD)
+        #[arg(long)]
+        start_date: String,
+        /// End date (YYYY-MM-DD)
+        #[arg(long)]
+        end_date: Option<String>,
+        /// Provider filter
+        #[arg(long)]
+        provider: Option<String>,
+    },
+
+    /// Get menstrual cycle data
+    MenstrualCycle {
+        /// User ID
+        user_id: String,
+        /// Start date (YYYY-MM-DD)
+        #[arg(long)]
+        start_date: String,
+        /// End date (YYYY-MM-DD)
+        #[arg(long)]
+        end_date: Option<String>,
+        /// Provider filter
+        #[arg(long)]
+        provider: Option<String>,
+    },
+
+    /// Get sleep cycle data
+    SleepCycle {
+        /// User ID
+        user_id: String,
+        /// Start date (YYYY-MM-DD)
+        #[arg(long)]
+        start_date: String,
+        /// End date (YYYY-MM-DD)
+        #[arg(long)]
+        end_date: Option<String>,
+        /// Provider filter
+        #[arg(long)]
+        provider: Option<String>,
+    },
+
     /// Get raw data for any summary type
     Raw {
         /// Summary type (sleep, activity, workouts, body, profile, devices)
@@ -108,6 +154,8 @@ pub async fn run(cmd: SummaryCommand) -> Result<()> {
     let config = Config::load()?;
     let client = JunctionClient::new(&config)?;
 
+    validate_summary_dates(&cmd)?;
+
     match cmd {
         SummaryCommand::Sleep {
             user_id,
@@ -115,7 +163,13 @@ pub async fn run(cmd: SummaryCommand) -> Result<()> {
             end_date,
             provider,
         } => {
-            let path = build_summary_path("sleep", &user_id, &start_date, end_date.as_deref(), provider.as_deref());
+            let path = build_summary_path(
+                "sleep",
+                &user_id,
+                &start_date,
+                end_date.as_deref(),
+                provider.as_deref(),
+            );
             let data: serde_json::Value = client.get_raw(&path).await?;
             output::print_json(&data);
         }
@@ -125,7 +179,13 @@ pub async fn run(cmd: SummaryCommand) -> Result<()> {
             end_date,
             provider,
         } => {
-            let path = build_summary_path("activity", &user_id, &start_date, end_date.as_deref(), provider.as_deref());
+            let path = build_summary_path(
+                "activity",
+                &user_id,
+                &start_date,
+                end_date.as_deref(),
+                provider.as_deref(),
+            );
             let data: serde_json::Value = client.get_raw(&path).await?;
             output::print_json(&data);
         }
@@ -135,7 +195,13 @@ pub async fn run(cmd: SummaryCommand) -> Result<()> {
             end_date,
             provider,
         } => {
-            let path = build_summary_path("workouts", &user_id, &start_date, end_date.as_deref(), provider.as_deref());
+            let path = build_summary_path(
+                "workouts",
+                &user_id,
+                &start_date,
+                end_date.as_deref(),
+                provider.as_deref(),
+            );
             let data: serde_json::Value = client.get_raw(&path).await?;
             output::print_json(&data);
         }
@@ -145,7 +211,13 @@ pub async fn run(cmd: SummaryCommand) -> Result<()> {
             end_date,
             provider,
         } => {
-            let path = build_summary_path("body", &user_id, &start_date, end_date.as_deref(), provider.as_deref());
+            let path = build_summary_path(
+                "body",
+                &user_id,
+                &start_date,
+                end_date.as_deref(),
+                provider.as_deref(),
+            );
             let data: serde_json::Value = client.get_raw(&path).await?;
             output::print_json(&data);
         }
@@ -155,12 +227,66 @@ pub async fn run(cmd: SummaryCommand) -> Result<()> {
             end_date,
             provider,
         } => {
-            let path = build_summary_path("meal", &user_id, &start_date, end_date.as_deref(), provider.as_deref());
+            let path = build_summary_path(
+                "meal",
+                &user_id,
+                &start_date,
+                end_date.as_deref(),
+                provider.as_deref(),
+            );
             let data: serde_json::Value = client.get_raw(&path).await?;
             output::print_json(&data);
         }
         SummaryCommand::Profile { user_id } => {
             let path = format!("/v2/summary/profile/{user_id}");
+            let data: serde_json::Value = client.get_raw(&path).await?;
+            output::print_json(&data);
+        }
+        SummaryCommand::Electrocardiogram {
+            user_id,
+            start_date,
+            end_date,
+            provider,
+        } => {
+            let path = build_summary_path(
+                "electrocardiogram",
+                &user_id,
+                &start_date,
+                end_date.as_deref(),
+                provider.as_deref(),
+            );
+            let data: serde_json::Value = client.get_raw(&path).await?;
+            output::print_json(&data);
+        }
+        SummaryCommand::MenstrualCycle {
+            user_id,
+            start_date,
+            end_date,
+            provider,
+        } => {
+            let path = build_summary_path(
+                "menstrual_cycle",
+                &user_id,
+                &start_date,
+                end_date.as_deref(),
+                provider.as_deref(),
+            );
+            let data: serde_json::Value = client.get_raw(&path).await?;
+            output::print_json(&data);
+        }
+        SummaryCommand::SleepCycle {
+            user_id,
+            start_date,
+            end_date,
+            provider,
+        } => {
+            let path = build_summary_path(
+                "sleep_cycle",
+                &user_id,
+                &start_date,
+                end_date.as_deref(),
+                provider.as_deref(),
+            );
             let data: serde_json::Value = client.get_raw(&path).await?;
             output::print_json(&data);
         }
@@ -182,6 +308,70 @@ pub async fn run(cmd: SummaryCommand) -> Result<()> {
         }
     }
 
+    Ok(())
+}
+
+fn validate_summary_dates(cmd: &SummaryCommand) -> Result<()> {
+    match cmd {
+        SummaryCommand::Sleep {
+            start_date,
+            end_date,
+            ..
+        }
+        | SummaryCommand::Activity {
+            start_date,
+            end_date,
+            ..
+        }
+        | SummaryCommand::Workouts {
+            start_date,
+            end_date,
+            ..
+        }
+        | SummaryCommand::Body {
+            start_date,
+            end_date,
+            ..
+        }
+        | SummaryCommand::Meal {
+            start_date,
+            end_date,
+            ..
+        }
+        | SummaryCommand::Electrocardiogram {
+            start_date,
+            end_date,
+            ..
+        }
+        | SummaryCommand::MenstrualCycle {
+            start_date,
+            end_date,
+            ..
+        }
+        | SummaryCommand::SleepCycle {
+            start_date,
+            end_date,
+            ..
+        } => {
+            validate::date(start_date)?;
+            if let Some(ed) = end_date {
+                validate::date(ed)?;
+            }
+        }
+        SummaryCommand::Profile { .. } => {}
+        SummaryCommand::Raw {
+            start_date,
+            end_date,
+            ..
+        } => {
+            if let Some(sd) = start_date {
+                validate::date(sd)?;
+            }
+            if let Some(ed) = end_date {
+                validate::date(ed)?;
+            }
+        }
+    }
     Ok(())
 }
 

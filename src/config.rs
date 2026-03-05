@@ -54,6 +54,8 @@ impl Config {
     }
 
     pub fn base_url(&self) -> &str {
-        self.base_url.as_deref().unwrap_or("https://api.tryvital.io")
+        self.base_url
+            .as_deref()
+            .unwrap_or("https://api.tryvital.io")
     }
 }

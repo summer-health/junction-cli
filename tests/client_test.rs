@@ -54,9 +54,7 @@ async fn post_json_sends_body() {
     Mock::given(method("POST"))
         .and(path("/v2/link/token"))
         .and(header("x-vital-api-key", "my-key"))
-        .respond_with(
-            ResponseTemplate::new(200).set_body_json(json!({"link_token": "tok_abc123"})),
-        )
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"link_token": "tok_abc123"})))
         .expect(1)
         .mount(&server)
         .await;
@@ -73,16 +71,20 @@ async fn error_response_returns_error() {
 
     Mock::given(method("GET"))
         .and(path("/v2/summary/profile/bad-id"))
-        .respond_with(
-            ResponseTemplate::new(404).set_body_json(json!({"detail": "User not found"})),
-        )
+        .respond_with(ResponseTemplate::new(404).set_body_json(json!({"detail": "User not found"})))
         .mount(&server)
         .await;
 
     let client = JunctionClient::from_parts(server.uri(), "key".into());
-    let err = client.get_raw("/v2/summary/profile/bad-id").await.unwrap_err();
+    let err = client
+        .get_raw("/v2/summary/profile/bad-id")
+        .await
+        .unwrap_err();
     let msg = err.to_string();
-    assert!(msg.contains("404"), "Error should contain status code: {msg}");
+    assert!(
+        msg.contains("404"),
+        "Error should contain status code: {msg}"
+    );
 }
 
 #[tokio::test]
@@ -109,8 +111,7 @@ async fn server_error_returns_error() {
     Mock::given(method("GET"))
         .and(path("/v2/link/providers"))
         .respond_with(
-            ResponseTemplate::new(500)
-                .set_body_json(json!({"detail": "Internal server error"})),
+            ResponseTemplate::new(500).set_body_json(json!({"detail": "Internal server error"})),
         )
         .mount(&server)
         .await;

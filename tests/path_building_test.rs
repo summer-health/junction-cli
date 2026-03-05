@@ -26,7 +26,13 @@ fn build_path_without_end_date() {
 
 #[test]
 fn build_path_without_provider() {
-    let path = build_summary_path("workouts", "user-789", "2024-06-01", Some("2024-06-30"), None);
+    let path = build_summary_path(
+        "workouts",
+        "user-789",
+        "2024-06-01",
+        Some("2024-06-30"),
+        None,
+    );
     assert_eq!(
         path,
         "/v2/summary/workouts/user-789?start_date=2024-06-01&end_date=2024-06-30"
