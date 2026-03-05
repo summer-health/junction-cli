@@ -19,7 +19,7 @@ pub fn date(s: &str) -> Result<()> {
         .parse()
         .map_err(|_| anyhow::anyhow!("invalid day in date '{s}'"))?;
 
-    if year < 1900 || year > 2100 {
+    if !(1900..=2100).contains(&year) {
         bail!("year out of range in date '{s}'");
     }
     if !(1..=12).contains(&month) {
@@ -49,10 +49,11 @@ pub fn json(s: &str) -> Result<serde_json::Value> {
 /// Validate a file path for output (parent directory must exist).
 pub fn output_path(s: &str) -> Result<()> {
     let path = std::path::Path::new(s);
-    if let Some(parent) = path.parent() {
-        if !parent.as_os_str().is_empty() && !parent.exists() {
-            bail!("output directory '{}' does not exist", parent.display());
-        }
+    if let Some(parent) = path.parent()
+        && !parent.as_os_str().is_empty()
+        && !parent.exists()
+    {
+        bail!("output directory '{}' does not exist", parent.display());
     }
     Ok(())
 }

@@ -11,6 +11,7 @@ use crate::validate;
 /// The CLI does not enforce this list — any metric string is accepted and
 /// forwarded to the API, which will return an error for unknown metrics.
 /// This list is provided for documentation and shell-completion only.
+#[allow(dead_code)]
 pub const KNOWN_METRICS: &[&str] = &[
     "afib_burden",
     "basal_body_temperature",

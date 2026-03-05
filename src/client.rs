@@ -22,6 +22,7 @@ impl JunctionClient {
         })
     }
 
+    #[allow(dead_code)] // Used by integration tests via lib crate
     pub fn from_parts(base_url: String, api_key: String) -> Self {
         Self {
             http: Client::new(),

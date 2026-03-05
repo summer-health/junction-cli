@@ -12,6 +12,3 @@ pub fn print_success(msg: &str) {
     println!("{} {msg}", "✓".green());
 }
 
-pub fn print_error(msg: &str) {
-    eprintln!("{} {msg}", "✗".red());
-}
